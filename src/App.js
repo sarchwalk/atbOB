@@ -113,94 +113,139 @@ class App extends React.Component {
       }
     }).then(result => {
       this.setState({
-        'accounts': result.accounts, 
+        'accounts': result.accounts,
         'error': null
       });
     }).catch(this.error_handler)
   }
 
+
+
+
+  fetch_transactions = () => {
+    console.log("Fetching transactions...");
+
+    // Stolen from fetch_accounts
+    const {base_url, token, bank_id} = this.state
+    axios({
+      url: joinPath(base_url, `/obp/v4.0.0/banks/72c50e431f23124b0b9db805215b48e/accounts/5532164271822-4631758f-98c/owner/transactions`),
+      method: 'GET', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `DirectLogin token="${token}"`
+      }
+    }).then(result => {
+      this.setState({
+        'transactions': result,
+        'error': null
+      });
+
+      console.log(result);
+
+    }).catch(this.error_handler)
+
+
+
+
+
+  }
+
+
   render() {
     return (
         <div className="container">
-          <div className="page-header text-center">
-            <h1>LeapOS API SDK ReactJs</h1>
-            <p>
-              This is a demo of direct login, fetch accounts, customers
-            </p>
-          </div> <hr/>
-          {
-            this.state.token ?
-                <div>
-                  <p>DirectLoginToken: <code>{this.state.token}</code><br/>
-                   All the follow http request will have the follow headers: <br/>
+        <div className="page-header text-center">
+        <h1>LeapOS API SDK ReactJs</h1>
+    <p>
+    This is a demo of direct login, fetch accounts, customers
+    </p>
+    </div> <hr/>
+    {
+      this.state.token ?
+    <div>
+    <p>DirectLoginToken: <code>{this.state.token}</code><br/>
+    All the follow http request will have the follow headers: <br/>
 
-                      <code style={{"whiteSpace":"pre-line"}}>
-                        {
-                        `
+    <code style={{"whiteSpace":"pre-line"}}>
+    {
+      `
                         headers: {
                           'Content-Type': 'application/json',
                           'Authorization': DirectLogin token="${this.state.token}"
                         }
                         `
-                        }
-                      </code>
-                  </p>
-                  <div className="mb-4">
-                    <ButtonToolbar>
-                       <Button variant="primary" onClick={this.clear_token}>Reset Token</Button>
-                    </ButtonToolbar>
-                  </div>  
-                  <div className="mb-2">
-                    <Button variant="primary" onClick={this.fetch_accounts}>Get Accounts</Button> <br/>
-                    Accounts:
-                    <ul className="list-group">
-                      {
-                        this.state.accounts.length ?
-                        this.state.accounts.map(account => (<li className="list-group-item" key={account.id}>{account.label} - account id: {account.id}</li>)) :
-                        <li className="list-group-item">no accounts</li>
-                      }
-                    </ul>
-                  </div>
-                  <div className="mb-2">
-                    <ButtonToolbar>
-                      <Button variant="primary" onClick={this.fetch_customers}>Get Customers</Button> &nbsp;
-                    </ButtonToolbar>
-                    Customers:
-                    <ul className="list-group">
-                      {
-                        this.state.customers.length ?
-                        this.state.customers.map(customer => (<li className="list-group-item" key={customer.customer_id}>{customer.legal_name} - customer id: {customer.customer_id}</li>)) :
-                        <li className="list-group-item">no customers</li>
-                      }
-                    </ul>
-                  </div>
-                </div>
-                :
-                <Form autoComplete="on">
-                    <Form.Group controlId="formGroupApiUrl">
-                      <Form.Label>LeapOS api base url:</Form.Label>
-                      <Form.Control type="url" placeholder="Enter LeapOS api base url" required="required" value={this.state.base_url} onChange={this.base_url_onchange} />
-                    </Form.Group>
-                    <Form.Group controlId="formGroupConsumerKey">
-                      <Form.Label>Consumer key</Form.Label>
-                      <Form.Control type="text" placeholder="Enter Consumer key" required="required" value={this.state.consumer_key} onChange={this.consumer_key_onchange}/>
-                    </Form.Group>
-                    <Form.Group controlId="formGroupUsername">
-                      <Form.Label>User name</Form.Label>
-                      <Form.Control type="text" placeholder="Enter User name" required="required" value={this.state.username} onChange={this.username_onchange}/>
-                    </Form.Group>
-                    <Form.Group controlId="formGroupPassword">
-                      <Form.Label>Password</Form.Label>
-                      <Form.Control type="password" placeholder="Password" required="required" value={this.state.password} onChange={this.password_onchange}/>
-                    </Form.Group>
-                    <Button variant="primary" onClick={this.fetch_direct_login_token} >Get Token</Button>
-                </Form>
-          }
-          {
-            this.state.error ? <Alert variant='danger'> {this.state.error} </Alert> : ''
-          }
-        </div>
-    );
+    }
+  </code>
+    </p>
+    <div className="mb-4">
+        <ButtonToolbar>
+        <Button variant="primary" onClick={this.clear_token}>Reset Token</Button>
+    </ButtonToolbar>
+    </div>
+    <div className="mb-2">
+        <Button variant="primary" onClick={this.fetch_accounts}>Get Accounts</Button> <br/>
+    Accounts:
+  <ul className="list-group">
+        {
+          this.state.accounts.length ?
+              this.state.accounts.map(account => (<li className="list-group-item" key={account.id}>{account.label} - account id: {account.id}</li>)) :
+              <li className="list-group-item">no accounts</li>
+  }
+  </ul>
+    </div>
+    <div className="mb-2">
+        <ButtonToolbar>
+        <Button variant="primary" onClick={this.fetch_customers}>Get Customers</Button> &nbsp;
+    </ButtonToolbar>
+    Customers:
+        <ul className="list-group">
+        {
+          this.state.customers.length ?
+              this.state.customers.map(customer => (<li className="list-group-item" key={customer.customer_id}>{customer.legal_name} - customer id: {customer.customer_id}</li>)) :
+              <li className="list-group-item">no customers</li>
+  }
+  </ul>
+    </div>
+
+
+    <div className="mb-2">
+        <Button variant="primary" onClick={this.fetch_transactions}>Get Transactions</Button> <br/>
+    </div>
+
+
+
+
+
+
+    </div>
+  :
+  <Form autoComplete="on">
+        <Form.Group controlId="formGroupApiUrl">
+        <Form.Label>LeapOS api base url:</Form.Label>
+    <Form.Control type="url" placeholder="Enter LeapOS api base url" required="required" value={this.state.base_url} onChange={this.base_url_onchange} />
+    </Form.Group>
+    <Form.Group controlId="formGroupConsumerKey">
+        <Form.Label>Consumer key</Form.Label>
+    <Form.Control type="text" placeholder="Enter Consumer key" required="required" value={this.state.consumer_key} onChange={this.consumer_key_onchange}/>
+    </Form.Group>
+    <Form.Group controlId="formGroupUsername">
+        <Form.Label>User name</Form.Label>
+    <Form.Control type="text" placeholder="Enter User name" required="required" value={this.state.username} onChange={this.username_onchange}/>
+    </Form.Group>
+    <Form.Group controlId="formGroupPassword">
+        <Form.Label>Password</Form.Label>
+        <Form.Control type="password" placeholder="Password" required="required" value={this.state.password} onChange={this.password_onchange}/>
+    </Form.Group>
+    <Button variant="primary" onClick={this.fetch_direct_login_token} >Get Token</Button>
+    </Form>
+  }
+    {
+      this.state.error ? <Alert variant='danger'> {this.state.error} </Alert> : ''
+    }
+  </div>
+  );
   }
 }
 
