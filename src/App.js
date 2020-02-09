@@ -3,6 +3,8 @@ import axios from 'axios';
 import "bootstrap/dist/css/bootstrap.min.css";
 import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
+import Toast from 'react-bootstrap/Toast'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Form from 'react-bootstrap/Form'
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar'
 import _ from 'lodash';
@@ -31,7 +33,7 @@ class App extends React.Component {
       error: null,
       bank_id: '644cf9d75a8eda4a1e9ab3ac37a7000',
       sortedAmount:[],
-      currentAccountId:'',
+      overlayShow:false
     }
     this.setAccount.bind(this,true);
   }
@@ -146,8 +148,7 @@ class App extends React.Component {
       });
       
       console.log(result);
-      this.categoryTransactions(result.transactions);
-
+      return this.categoryTransactions(result.transactions);
     }).catch(this.error_handler)
 
   }
@@ -176,11 +177,21 @@ class App extends React.Component {
       console.log(Object.entries(cloneType));
        return cloneType;
   }
+
+  showOverlay = (category)=>{
+   let showUp =""
+   _.forEach(category,(key, value)=>{
+     showUp = showUp + value + "--------" + key+ '\n';
+   })
+   alert(showUp);
+  }
+
 setAccount = (e)=>{
 
    const {base_url, token, bank_id} = this.state
+   const target = e.target;
    axios({
-     url: joinPath(base_url, `obp/v4.0.0/banks/${bank_id}/accounts/${e.target.id}/owner/transactions`),
+     url: joinPath(base_url, `obp/v4.0.0/banks/${bank_id}/accounts/${target.id}/owner/transactions`),
      method: 'GET', // *GET, POST, PUT, DELETE, etc.
      mode: 'cors', // no-cors, *cors, same-origin
      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -195,8 +206,8 @@ setAccount = (e)=>{
      });
      
      console.log(result);
-     this.categoryTransactions(result.transactions);
-
+    const categroy=this.categoryTransactions(result.transactions);
+    this.showOverlay(categroy);
    }).catch(this.error_handler)
 
 }
@@ -245,6 +256,7 @@ getAccountRender(account){
               <li className="list-group-item">no accounts</li>
   }
   </ul>
+  
     </div>
     <div className="mb-2">
         <ButtonToolbar>
