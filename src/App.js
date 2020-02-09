@@ -29,9 +29,11 @@ class App extends React.Component {
       customers: [],
       accounts: [],
       error: null,
-      bank_id: '',
-      sortedAmount:[]
+      bank_id: '644cf9d75a8eda4a1e9ab3ac37a7000',
+      sortedAmount:[],
+      currentAccountId:'',
     }
+    this.setAccount.bind(this,true);
   }
 
   base_url_onchange = e => {
@@ -174,7 +176,33 @@ class App extends React.Component {
       console.log(Object.entries(cloneType));
        return cloneType;
   }
+setAccount = (e)=>{
 
+   const {base_url, token, bank_id} = this.state
+   axios({
+     url: joinPath(base_url, `obp/v4.0.0/banks/${bank_id}/accounts/${e.target.id}/owner/transactions`),
+     method: 'GET', // *GET, POST, PUT, DELETE, etc.
+     mode: 'cors', // no-cors, *cors, same-origin
+     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+     headers: {
+       'Content-Type': 'application/json',
+       'Authorization': `DirectLogin token="${token}"`
+     }
+   }).then(result => {
+     this.setState({
+       'transactions': result,
+       'error': null
+     });
+     
+     console.log(result);
+     this.categoryTransactions(result.transactions);
+
+   }).catch(this.error_handler)
+
+}
+getAccountRender(account){
+  return (<li className="list-group-item" key={account.id} ><div onClick={this.setAccount} id={account.id}>{account.label} - account id: {account.id}</div></li>)
+}
 
   render() {
     return (
@@ -213,7 +241,7 @@ class App extends React.Component {
   <ul className="list-group">
         {
           this.state.accounts.length ?
-              this.state.accounts.map(account => (<li className="list-group-item" key={account.id}>{account.label} - account id: {account.id}</li>)) :
+              this.state.accounts.map(account => (this.getAccountRender(account))) :
               <li className="list-group-item">no accounts</li>
   }
   </ul>
